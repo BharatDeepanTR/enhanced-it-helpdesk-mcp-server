@@ -1,0 +1,52 @@
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+env/
+venv/
+.venv
+pip-log.txt
+pip-delete-this-directory.txt
+.coverage
+.pytest_cache/
+
+# Docker
+.dockerignore
+
+# AWS
+.aws/
+aws-exports.js
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Logs
+*.log
+logs/
+
+# Temporary files
+*.tmp
+*.temp
+tmp/
+temp/
+
+# Archive files
+*.tar.gz
+*.zip
+*.rar
+
+# Large AWS CLI package
+aws/
+awscliv2.zip
+
+# Test directories
+test-*/
