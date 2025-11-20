@@ -1,0 +1,18 @@
+# Simple DNS Handler - Working Implementation
+FROM python:3.11-slim
+
+# Set working directory
+WORKDIR /app
+
+# Copy the simple handler
+COPY simple_dns_handler.py .
+
+# Set environment variables
+ENV ENV=dev
+ENV APP_CONFIG_PATH=/a208194/APISECRETS
+
+# Expose port
+EXPOSE 8080
+
+# Run the simple handler
+CMD ["python", "simple_dns_handler.py"]

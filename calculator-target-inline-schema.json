@@ -1,0 +1,273 @@
+[
+    {
+        "name": "add",
+        "description": "Add two numbers together with validation for reasonable numeric ranges",
+        "inputSchema": {
+            "type": "object",
+            "properties": {
+                "a": {
+                    "type": "number", 
+                    "description": "First number to add",
+                    "minimum": -999999999,
+                    "maximum": 999999999
+                },
+                "b": {
+                    "type": "number", 
+                    "description": "Second number to add",
+                    "minimum": -999999999,
+                    "maximum": 999999999
+                }
+            },
+            "required": ["a", "b"],
+            "additionalProperties": false
+        }
+    },
+    {
+        "name": "subtract",
+        "description": "Subtract the second number from the first number",
+        "inputSchema": {
+            "type": "object",
+            "properties": {
+                "a": {
+                    "type": "number", 
+                    "description": "Number to subtract from (minuend)",
+                    "minimum": -999999999,
+                    "maximum": 999999999
+                },
+                "b": {
+                    "type": "number", 
+                    "description": "Number to subtract (subtrahend)",
+                    "minimum": -999999999,
+                    "maximum": 999999999
+                }
+            },
+            "required": ["a", "b"],
+            "additionalProperties": false
+        }
+    },
+    {
+        "name": "multiply",
+        "description": "Multiply two numbers together with overflow protection",
+        "inputSchema": {
+            "type": "object",
+            "properties": {
+                "a": {
+                    "type": "number", 
+                    "description": "First number to multiply (multiplicand)",
+                    "minimum": -999999,
+                    "maximum": 999999
+                },
+                "b": {
+                    "type": "number", 
+                    "description": "Second number to multiply (multiplier)",
+                    "minimum": -999999,
+                    "maximum": 999999
+                }
+            },
+            "required": ["a", "b"],
+            "additionalProperties": false
+        }
+    },
+    {
+        "name": "divide",
+        "description": "Divide the first number by the second number with zero-division protection",
+        "inputSchema": {
+            "type": "object",
+            "properties": {
+                "a": {
+                    "type": "number", 
+                    "description": "Number to be divided (dividend)",
+                    "minimum": -999999999,
+                    "maximum": 999999999
+                },
+                "b": {
+                    "type": "number", 
+                    "description": "Number to divide by (divisor) - cannot be zero",
+                    "minimum": -999999999,
+                    "maximum": 999999999,
+                    "not": {"const": 0}
+                }
+            },
+            "required": ["a", "b"],
+            "additionalProperties": false
+        }
+    },
+    {
+        "name": "power",
+        "description": "Raise base number to the power of exponent with reasonable limits",
+        "inputSchema": {
+            "type": "object",
+            "properties": {
+                "base": {
+                    "type": "number", 
+                    "description": "Base number to be raised to a power",
+                    "minimum": -1000,
+                    "maximum": 1000
+                },
+                "exponent": {
+                    "type": "number", 
+                    "description": "Exponent (power to raise base to)",
+                    "minimum": -100,
+                    "maximum": 100
+                }
+            },
+            "required": ["base", "exponent"],
+            "additionalProperties": false
+        }
+    },
+    {
+        "name": "sqrt",
+        "description": "Calculate the square root of a non-negative number",
+        "inputSchema": {
+            "type": "object",
+            "properties": {
+                "number": {
+                    "type": "number", 
+                    "description": "Non-negative number to find square root of",
+                    "minimum": 0,
+                    "maximum": 999999999
+                }
+            },
+            "required": ["number"],
+            "additionalProperties": false
+        }
+    },
+    {
+        "name": "factorial",
+        "description": "Calculate factorial of a non-negative integer (n!) with performance limits",
+        "inputSchema": {
+            "type": "object",
+            "properties": {
+                "n": {
+                    "type": "integer", 
+                    "description": "Non-negative integer to calculate factorial of (limit: 100 for performance)",
+                    "minimum": 0,
+                    "maximum": 100
+                }
+            },
+            "required": ["n"],
+            "additionalProperties": false
+        }
+    },
+    {
+        "name": "percentage",
+        "description": "Calculate percentage of a number or percentage change between two numbers",
+        "inputSchema": {
+            "type": "object",
+            "properties": {
+                "operation": {
+                    "type": "string",
+                    "enum": ["of", "change", "increase", "decrease"],
+                    "description": "Type of percentage calculation"
+                },
+                "value": {
+                    "type": "number",
+                    "description": "Primary value for calculation",
+                    "minimum": -999999999,
+                    "maximum": 999999999
+                },
+                "percentage": {
+                    "type": "number",
+                    "description": "Percentage value (for 'of' operations)",
+                    "minimum": -1000,
+                    "maximum": 1000
+                },
+                "original_value": {
+                    "type": "number",
+                    "description": "Original value (for change calculations)",
+                    "minimum": -999999999,
+                    "maximum": 999999999
+                },
+                "new_value": {
+                    "type": "number",
+                    "description": "New value (for change calculations)",
+                    "minimum": -999999999,
+                    "maximum": 999999999
+                }
+            },
+            "required": ["operation"],
+            "oneOf": [
+                {
+                    "properties": {
+                        "operation": {"const": "of"}
+                    },
+                    "required": ["value", "percentage"]
+                },
+                {
+                    "properties": {
+                        "operation": {"enum": ["change", "increase", "decrease"]}
+                    },
+                    "required": ["original_value", "new_value"]
+                }
+            ],
+            "additionalProperties": false
+        }
+    },
+    {
+        "name": "trigonometry",
+        "description": "Calculate trigonometric functions (sin, cos, tan) for angles in degrees or radians",
+        "inputSchema": {
+            "type": "object",
+            "properties": {
+                "function": {
+                    "type": "string",
+                    "enum": ["sin", "cos", "tan", "asin", "acos", "atan"],
+                    "description": "Trigonometric function to calculate"
+                },
+                "angle": {
+                    "type": "number",
+                    "description": "Angle value for calculation",
+                    "minimum": -3600,
+                    "maximum": 3600
+                },
+                "unit": {
+                    "type": "string",
+                    "enum": ["degrees", "radians"],
+                    "default": "degrees",
+                    "description": "Unit of angle measurement"
+                },
+                "precision": {
+                    "type": "integer",
+                    "minimum": 0,
+                    "maximum": 10,
+                    "default": 6,
+                    "description": "Number of decimal places for result"
+                }
+            },
+            "required": ["function", "angle"],
+            "additionalProperties": false
+        }
+    },
+    {
+        "name": "statistics",
+        "description": "Calculate statistical measures for a dataset (mean, median, mode, standard deviation)",
+        "inputSchema": {
+            "type": "object",
+            "properties": {
+                "operation": {
+                    "type": "string",
+                    "enum": ["mean", "median", "mode", "std_dev", "variance", "all"],
+                    "description": "Statistical operation to perform"
+                },
+                "data": {
+                    "type": "array",
+                    "items": {
+                        "type": "number"
+                    },
+                    "minItems": 1,
+                    "maxItems": 1000,
+                    "description": "Array of numerical data points"
+                },
+                "precision": {
+                    "type": "integer",
+                    "minimum": 0,
+                    "maximum": 10,
+                    "default": 4,
+                    "description": "Number of decimal places for results"
+                }
+            },
+            "required": ["operation", "data"],
+            "additionalProperties": false
+        }
+    }
+]

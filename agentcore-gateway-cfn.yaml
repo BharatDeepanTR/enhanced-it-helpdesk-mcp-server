@@ -1,0 +1,72 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Description: 'Bedrock Agent Core Gateway with Service Role for Application Details Lookup'
+
+Parameters:
+  GatewayName:
+    Type: String
+    Default: 'a208194-askjulius-agentcore-gateway'
+    Description: 'Name for the Agent Core Gateway'
+  
+  LambdaArn:
+    Type: String
+    Default: 'arn:aws:lambda:us-east-1:818565325759:function:a208194-chatops_application_details_intent'
+    Description: 'ARN of the Lambda function to integrate'
+
+Resources:
+  # Service Role for Agent Core Gateway
+  AgentCoreGatewayRole:
+    Type: AWS::IAM::Role
+    Properties:
+      RoleName: 'a208194-askjulius-agentcore-gateway'
+      AssumeRolePolicyDocument:
+        Version: '2012-10-17'
+        Statement:
+          - Effect: Allow
+            Principal:
+              Service: 
+                - bedrock.amazonaws.com
+            Action: sts:AssumeRole
+      ManagedPolicyArns:
+        - arn:aws:iam::aws:policy/service-role/AmazonBedrockFullAccess
+      Policies:
+        - PolicyName: LambdaInvokePolicy
+          PolicyDocument:
+            Version: '2012-10-17'
+            Statement:
+              - Effect: Allow
+                Action:
+                  - lambda:InvokeFunction
+                Resource: !Ref LambdaArn
+        - PolicyName: BedrockAgentCorePolicy
+          PolicyDocument:
+            Version: '2012-10-17'
+            Statement:
+              - Effect: Allow
+                Action:
+                  - bedrock:*
+                  - logs:CreateLogGroup
+                  - logs:CreateLogStream
+                  - logs:PutLogEvents
+                Resource: '*'
+
+  # Note: Agent Core Gateway resource may not be available in CloudFormation yet
+  # This template creates the service role, manual gateway creation required
+
+Outputs:
+  ServiceRoleArn:
+    Description: 'ARN of the created service role for Agent Core Gateway'
+    Value: !GetAtt AgentCoreGatewayRole.Arn
+    Export:
+      Name: !Sub '${AWS::StackName}-ServiceRoleArn'
+  
+  GatewayName:
+    Description: 'Name to use for the Agent Core Gateway'
+    Value: !Ref GatewayName
+  
+  LambdaArn:
+    Description: 'Lambda ARN for the gateway target'
+    Value: !Ref LambdaArn
+  
+  ManualCreationInstructions:
+    Description: 'Next steps for manual gateway creation'
+    Value: 'Use the service role ARN in AWS Console -> Bedrock -> Agent Core -> Gateways'

@@ -1,0 +1,35 @@
+# AWS CodeBuild project for ARM64 container
+version: 0.2
+
+phases:
+  pre_build:
+    commands:
+      - echo Logging in to Amazon ECR...
+      - aws ecr get-login-password --region $AWS_DEFAULT_REGION | docker login --username AWS --password-stdin $AWS_ACCOUNT_ID.dkr.ecr.$AWS_DEFAULT_REGION.amazonaws.com
+  build:
+    commands:
+      - echo Build started on `date`
+      - echo Building the ARM64 Docker image...
+      - |
+        cat > Dockerfile.arm64 << 'EOF'
+        FROM --platform=linux/arm64 python:3.11-slim
+        WORKDIR /app
+        RUN pip install --no-cache-dir boto3 requests
+        COPY *.py ./
+        ENV ENV=dev
+        ENV APP_CONFIG_PATH=/a208194/APISECRETS
+        ENV PYTHONPATH=/app
+        EXPOSE 8080
+        CMD ["python", "container_handler.py"]
+        EOF
+      - docker buildx create --use --platform linux/arm64
+      - docker buildx build --platform linux/arm64 -f Dockerfile.arm64 -t $IMAGE_REPO_NAME:$IMAGE_TAG . --push
+  post_build:
+    commands:
+      - echo Build completed on `date`
+      - echo Updating Agent Core Runtime...
+      - |
+        aws bedrock-agentcore update-agent-runtime \
+          --runtime-id "a208194_chatops_route_dns_lookup-Zg3E6G5ZDV" \
+          --container-configuration imageUri="$IMAGE_REPO_NAME:$IMAGE_TAG" \
+          --region $AWS_DEFAULT_REGION

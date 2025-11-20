@@ -1,0 +1,60 @@
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: dns-lookup-ingress
+  namespace: dns-lookup
+  annotations:
+    # NGINX Ingress Controller annotations
+    kubernetes.io/ingress.class: "nginx"
+    nginx.ingress.kubernetes.io/ssl-redirect: "true"
+    nginx.ingress.kubernetes.io/force-ssl-redirect: "true"
+    
+    # Security headers
+    nginx.ingress.kubernetes.io/configuration-snippet: |
+      add_header X-Content-Type-Options "nosniff" always;
+      add_header X-Frame-Options "DENY" always;
+      add_header X-XSS-Protection "1; mode=block" always;
+      add_header Referrer-Policy "strict-origin-when-cross-origin" always;
+      add_header Content-Security-Policy "default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline'; img-src 'self' data:; connect-src 'self'" always;
+    
+    # Rate limiting
+    nginx.ingress.kubernetes.io/rate-limit: "100"
+    nginx.ingress.kubernetes.io/rate-limit-window: "1m"
+    
+    # Request size limit
+    nginx.ingress.kubernetes.io/proxy-body-size: "10k"
+    
+    # CORS
+    nginx.ingress.kubernetes.io/enable-cors: "true"
+    nginx.ingress.kubernetes.io/cors-allow-origin: "*"
+    nginx.ingress.kubernetes.io/cors-allow-methods: "GET, POST, OPTIONS"
+    nginx.ingress.kubernetes.io/cors-allow-headers: "Content-Type, Authorization"
+    
+spec:
+  tls:
+  - hosts:
+    - dns-lookup.example.com
+    secretName: dns-lookup-tls
+  rules:
+  - host: dns-lookup.example.com
+    http:
+      paths:
+      - path: /
+        pathType: Prefix
+        backend:
+          service:
+            name: dns-lookup-service
+            port:
+              number: 80
+---
+# TLS Certificate (replace with your actual certificate)
+apiVersion: v1
+kind: Secret
+metadata:
+  name: dns-lookup-tls
+  namespace: dns-lookup
+type: kubernetes.io/tls
+data:
+  # Replace with your actual certificate and key (base64 encoded)
+  tls.crt: LS0tLS1CRUdJTi...  # Base64 encoded certificate
+  tls.key: LS0tLS1CRUdJTi...  # Base64 encoded private key

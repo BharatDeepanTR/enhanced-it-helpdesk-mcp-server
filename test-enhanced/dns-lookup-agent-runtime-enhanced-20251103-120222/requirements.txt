@@ -1,0 +1,23 @@
+# Enhanced requirements for AWS Bedrock Agent Core Runtime
+# Includes Lambda Runtime Interface Client (RIC) for proper container execution
+
+# Core AWS dependencies
+boto3==1.34.34
+botocore>=1.34.34,<1.35.0
+
+# Web requests
+requests==2.31.0
+
+# Date/time handling
+python-dateutil==2.8.2
+pytz==2023.3
+
+# Lambda Runtime Interface Client for container execution
+awslambdaric==2.0.8
+
+# JSON processing (typically included but explicit for clarity)
+# Note: json is built-in, but ujson can be faster for large responses
+# ujson==5.8.0  # Uncomment if needed for performance
+
+# Logging enhancements for CloudWatch
+# watchtower==3.0.1  # Uncomment if advanced CloudWatch logging needed

@@ -1,0 +1,50 @@
+# Agent Core Runtime Compatible Dockerfile
+# Supports both HTTP server and Lambda handler modes
+
+FROM python:3.11-slim-bookworm
+
+# Create non-root user for security
+RUN groupadd --gid 10001 appgroup && \
+    useradd --uid 10001 --gid appgroup --shell /bin/bash --create-home appuser
+
+# Install runtime dependencies
+RUN apt-get update && \
+    apt-get install -y --no-install-recommends \
+        ca-certificates \
+        curl \
+        && \
+    apt-get clean && \
+    rm -rf /var/lib/apt/lists/*
+
+# Set working directory
+WORKDIR /app
+
+# Copy requirements and install Python packages
+COPY requirements.txt .
+RUN pip install --no-cache-dir --upgrade pip && \
+    pip install --no-cache-dir -r requirements.txt
+
+# Copy application files
+COPY chatops_route_dns_intent.py .
+COPY chatops_helpers.py .
+COPY chatops_config.py .
+COPY container_handler.py .
+COPY lambda_handler.py .
+
+# Security hardening
+RUN chown -R appuser:appgroup /app && \
+    chmod -R 755 /app
+
+# Switch to non-root user
+USER appuser
+
+# Health check
+HEALTHCHECK --interval=30s --timeout=10s --start-period=5s --retries=3 \
+    CMD python -c "import requests; requests.get('http://localhost:8080/health')" || exit 1
+
+# Expose port for HTTP mode
+EXPOSE 8080
+
+# Default to Lambda handler for Agent Core Runtime
+# Can be overridden for HTTP server mode
+CMD ["lambda_handler.lambda_handler"]

@@ -1,0 +1,32 @@
+FROM --platform=linux/arm64 python:3.11-slim-bookworm
+
+WORKDIR /app
+
+# Copy requirements and install dependencies
+COPY requirements.txt requirements-security.txt ./
+RUN python -m venv /opt/venv && \
+    /opt/venv/bin/pip install --no-cache-dir --upgrade pip==23.3.1 && \
+    /opt/venv/bin/pip install --no-cache-dir --requirement requirements.txt && \
+    /opt/venv/bin/pip install --no-cache-dir --requirement requirements-security.txt
+
+# Use virtual environment
+ENV PATH="/opt/venv/bin:$PATH"
+
+# Copy application files
+COPY chatops_*.py ./
+COPY container_handler_stdin.py ./
+COPY function.txt ./
+
+# Create /opt directory and copy function.txt there for genAI
+RUN mkdir -p /opt
+COPY function.txt /opt/function.txt
+
+# Set environment variables
+ENV ENV=dev
+ENV APP_CONFIG_PATH=/a208194/APISECRETS
+
+# Make the stdin handler executable
+RUN chmod +x container_handler_stdin.py
+
+# Run the stdin handler directly 
+CMD ["python", "container_handler_stdin.py"]

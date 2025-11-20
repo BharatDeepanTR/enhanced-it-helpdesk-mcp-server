@@ -1,0 +1,54 @@
+{
+    "MCP-Tools-List": {
+        "jsonrpc": "2.0",
+        "method": "tools/list",
+        "id": 1
+    },
+    "Calculator-Addition": {
+        "jsonrpc": "2.0",
+        "method": "tools/call",
+        "params": {
+            "name": "add",
+            "arguments": {
+                "a": 5,
+                "b": 3
+            }
+        },
+        "id": 2
+    },
+    "Calculator-Division": {
+        "jsonrpc": "2.0",
+        "method": "tools/call",
+        "params": {
+            "name": "divide",
+            "arguments": {
+                "a": 15,
+                "b": 3
+            }
+        },
+        "id": 3
+    },
+    "Calculator-Error-Test": {
+        "jsonrpc": "2.0",
+        "method": "tools/call",
+        "params": {
+            "name": "divide",
+            "arguments": {
+                "a": 10,
+                "b": 0
+            }
+        },
+        "id": 4
+    },
+    "Calculator-Square-Root": {
+        "jsonrpc": "2.0",
+        "method": "tools/call",
+        "params": {
+            "name": "sqrt",
+            "arguments": {
+                "number": 25
+            }
+        },
+        "id": 5
+    }
+}

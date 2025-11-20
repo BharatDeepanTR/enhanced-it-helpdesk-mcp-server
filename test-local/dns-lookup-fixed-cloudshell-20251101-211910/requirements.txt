@@ -1,0 +1,12 @@
+# Minimal requirements - let pip resolve compatible versions
+boto3==1.34.34
+requests==2.31.0
+python-dateutil==2.8.2
+pytz==2023.3
+
+# Note: Let pip automatically resolve:
+# - botocore (from boto3)
+# - urllib3 (compatible version for both requests and botocore) 
+# - s3transfer (from boto3)
+# - jmespath (from boto3)
+# - certifi, charset-normalizer, idna (from requests)

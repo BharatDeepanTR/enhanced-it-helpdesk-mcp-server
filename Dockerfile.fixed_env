@@ -1,0 +1,29 @@
+# DNS Agent Core Runtime Dockerfile - ENV Fix
+FROM --platform=linux/arm64 python:3.11-slim-bookworm
+
+WORKDIR /app
+
+COPY requirements.txt requirements-security.txt ./
+RUN python -m venv /opt/venv && \
+    /opt/venv/bin/pip install --no-cache-dir --upgrade pip==23.3.1 && \
+    /opt/venv/bin/pip install --no-cache-dir --requirement requirements.txt && \
+    /opt/venv/bin/pip install --no-cache-dir --requirement requirements-security.txt
+
+COPY chatops_route_dns_intent.py ./
+COPY chatops_helpers.py ./
+COPY chatops_config.py ./
+COPY container_handler.py ./
+
+USER root
+
+ENV PATH="/opt/venv/bin:$PATH" \
+    PYTHONPATH="/app" \
+    PYTHONUNBUFFERED=1 \
+    PYTHONDONTWRITEBYTECODE=1 \
+    PIP_NO_CACHE_DIR=1 \
+    PIP_DISABLE_PIP_VERSION_CHECK=1 \
+    ENV=dev \
+    APP_CONFIG_PATH=/a208194/APISECRETS
+
+EXPOSE 8080
+ENTRYPOINT ["python", "container_handler.py"]

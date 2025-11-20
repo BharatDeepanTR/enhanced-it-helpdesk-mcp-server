@@ -1,0 +1,44 @@
+[
+  {
+    "name": "ai_calculate",
+    "description": "AI-powered calculator that can handle natural language math queries, complex calculations, and provide step-by-step explanations",
+    "inputSchema": {
+      "type": "object",
+      "properties": {
+        "query": {
+          "type": "string",
+          "description": "Natural language math query (e.g., 'What is 15% of $50,000?', 'Calculate compound interest for 5 years at 4.5%')"
+        }
+      },
+      "required": ["query"]
+    }
+  },
+  {
+    "name": "explain_calculation",
+    "description": "Explain mathematical concepts and provide step-by-step solutions for given calculations",
+    "inputSchema": {
+      "type": "object",
+      "properties": {
+        "calculation": {
+          "type": "string",
+          "description": "Mathematical expression or problem to explain (e.g., '25 + 4', 'quadratic formula')"
+        }
+      },
+      "required": ["calculation"]
+    }
+  },
+  {
+    "name": "solve_word_problem",
+    "description": "Solve mathematical word problems with detailed explanations",
+    "inputSchema": {
+      "type": "object",
+      "properties": {
+        "problem": {
+          "type": "string",
+          "description": "Mathematical word problem to solve"
+        }
+      },
+      "required": ["problem"]
+    }
+  }
+]

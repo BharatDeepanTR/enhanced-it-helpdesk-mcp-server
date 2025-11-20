@@ -1,0 +1,33 @@
+# Security-focused dependencies for vulnerability scanning and runtime protection
+# These are additional packages for security scanning and protection
+
+# Vulnerability scanning and security audit tools
+pip-audit==2.6.1
+safety==2.3.5
+
+# Security headers and HTTPS enforcement
+secure==0.3.0
+
+# Input validation and sanitization
+validators==0.22.0
+
+# Rate limiting and DoS protection
+slowapi==0.1.8
+
+# Secure random number generation (built-in, but explicit)
+# secrets - built-in module
+
+# Environment variable validation
+python-decouple==3.8
+
+# Cryptographic libraries (if needed for future enhancements)
+cryptography==41.0.7
+
+# HTTP client with better security defaults
+httpx==0.25.2
+
+# JSON schema validation for input sanitization
+jsonschema==4.19.2
+
+# Note: These are optional security enhancements
+# Remove any that are not needed to minimize attack surface

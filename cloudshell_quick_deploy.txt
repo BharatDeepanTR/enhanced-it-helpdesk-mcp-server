@@ -1,0 +1,252 @@
+# CloudShell Quick Deploy - Application Details MCP Client
+# Copy and paste this entire block into CloudShell terminal
+
+# One-liner deployment and test
+curl -s https://raw.githubusercontent.com/your-repo/cloudshell_comprehensive_deployment.sh > deploy.sh 2>/dev/null || echo '#!/bin/bash
+
+echo "🚀 CloudShell Application Details MCP Client - Quick Deploy"
+echo "==========================================================="
+
+# Install dependencies
+echo "📦 Installing dependencies..."
+pip3 install --user requests-aws4auth boto3 --quiet
+
+# Create the comprehensive client
+cat > cloudshell_app_details_client.py << '\''PYTHON_EOF'\''
+#!/usr/bin/env python3
+"""
+CloudShell Application Details MCP Client
+Fixes Agent ID validation and Bearer token authentication issues
+"""
+
+import json, uuid, boto3, requests, sys, logging, time
+from requests_aws4auth import AWS4Auth
+from datetime import datetime
+
+logging.basicConfig(level=logging.INFO, format='\''%(asctime)s - %(levelname)s - %(message)s'\'')
+logger = logging.getLogger(__name__)
+
+class QuickMCPClient:
+    def __init__(self):
+        self.gateway_base = "https://a208194-askjulius-agentcore-mcp-gateway-dhy8ntpcvu.gateway.bedrock-agentcore.us-east-1.amazonaws.com"
+        self.lambda_arn = "arn:aws:lambda:us-east-1:818565325759:function:a208194-chatops_application_details_intent"
+        self.region = "us-east-1"
+        
+        # Initialize clients and auth
+        try:
+            self.lambda_client = boto3.client('\''lambda'\'', region_name=self.region)
+            session = boto3.Session()
+            creds = session.get_credentials()
+            
+            if creds:
+                self.auth_methods = {
+                    '\''bedrock-agentcore'\'': AWS4Auth(creds.access_key, creds.secret_key, self.region, '\''bedrock-agentcore'\'', session_token=creds.token),
+                    '\''bedrock'\'': AWS4Auth(creds.access_key, creds.secret_key, self.region, '\''bedrock'\'', session_token=creds.token),
+                    '\''execute-api'\'': AWS4Auth(creds.access_key, creds.secret_key, self.region, '\''execute-api'\'', session_token=creds.token)
+                }
+                self.bearer_tokens = [creds.token, creds.access_key, f"{creds.access_key}:{creds.secret_key}"]
+                logger.info("✅ Authentication methods initialized")
+            else:
+                logger.error("❌ No credentials found")
+                
+        except Exception as e:
+            logger.error(f"❌ Initialization failed: {e}")
+    
+    def test_lambda_direct(self, asset_id="a12345"):
+        """Test direct Lambda invocation"""
+        logger.info("🔧 Testing direct Lambda...")
+        try:
+            response = self.lambda_client.invoke(
+                FunctionName=self.lambda_arn,
+                Payload=json.dumps({"asset_id": asset_id, "request_type": "application_details"})
+            )
+            result = json.loads(response['\''Payload'\''].read())
+            logger.info("✅ Direct Lambda works")
+            return {"success": True, "result": result}
+        except Exception as e:
+            logger.error(f"❌ Direct Lambda failed: {e}")
+            return {"success": False, "error": str(e)}
+    
+    def test_gateway_auth(self):
+        """Test gateway authentication methods"""
+        logger.info("🔐 Testing gateway authentication...")
+        
+        mcp_url = f"{self.gateway_base}/mcp"
+        mcp_request = {"jsonrpc": "2.0", "method": "tools/list", "id": str(uuid.uuid4())}
+        headers = {'\''Content-Type'\'': '\''application/json'\'', '\''Accept'\'': '\''application/json'\''}
+        
+        # Test SigV4 methods
+        for service, auth in self.auth_methods.items():
+            try:
+                response = requests.post(mcp_url, json=mcp_request, headers=headers, auth=auth, timeout=15)
+                if response.status_code == 200:
+                    result = response.json()
+                    if "result" in result:
+                        logger.info(f"✅ SigV4 {service} authentication works!")
+                        tools = result["result"].get("tools", [])
+                        for tool in tools:
+                            logger.info(f"   • Tool: {tool.get('\''name'\'', '\''Unknown'\'')}")
+                        return {"success": True, "method": f"sigv4_{service}", "tools": tools}
+                else:
+                    logger.warning(f"⚠️ SigV4 {service}: {response.status_code}")
+            except Exception as e:
+                logger.warning(f"⚠️ SigV4 {service} failed: {e}")
+        
+        # Test Bearer token methods
+        for i, token in enumerate(self.bearer_tokens):
+            if not token:
+                continue
+            try:
+                bearer_headers = headers.copy()
+                bearer_headers['\''Authorization'\''] = f'\''Bearer {token}'\''
+                response = requests.post(mcp_url, json=mcp_request, headers=bearer_headers, timeout=15)
+                if response.status_code == 200:
+                    result = response.json()
+                    if "result" in result:
+                        logger.info(f"✅ Bearer token {i+1} authentication works!")
+                        return {"success": True, "method": f"bearer_{i+1}"}
+                else:
+                    logger.warning(f"⚠️ Bearer {i+1}: {response.status_code}")
+            except Exception as e:
+                logger.warning(f"⚠️ Bearer {i+1} failed: {e}")
+        
+        logger.error("❌ All authentication methods failed")
+        return {"success": False, "error": "All authentication methods failed"}
+    
+    def test_application_details(self, asset_id="a12345"):
+        """Test application details call with working auth"""
+        logger.info(f"🎯 Testing application details for {asset_id}...")
+        
+        # First find working auth
+        auth_result = self.test_gateway_auth()
+        if not auth_result["success"]:
+            return auth_result
+        
+        # Use working auth for tool call
+        mcp_url = f"{self.gateway_base}/mcp"
+        mcp_request = {
+            "jsonrpc": "2.0",
+            "method": "tools/call",
+            "params": {
+                "name": "get_application_details",
+                "arguments": {"asset_id": asset_id}
+            },
+            "id": str(uuid.uuid4())
+        }
+        headers = {'\''Content-Type'\'': '\''application/json'\'', '\''Accept'\'': '\''application/json'\''}
+        
+        try:
+            # Apply the working authentication method
+            method = auth_result["method"]
+            if method.startswith("sigv4_"):
+                service = method.replace("sigv4_", "")
+                auth = self.auth_methods[service]
+                response = requests.post(mcp_url, json=mcp_request, headers=headers, auth=auth, timeout=30)
+            elif method.startswith("bearer_"):
+                token_index = int(method.split("_")[1]) - 1
+                token = self.bearer_tokens[token_index]
+                headers['\''Authorization'\''] = f'\''Bearer {token}'\''
+                response = requests.post(mcp_url, json=mcp_request, headers=headers, timeout=30)
+            
+            if response.status_code == 200:
+                result = response.json()
+                logger.info("✅ Application details call successful!")
+                return {"success": True, "method": method, "result": result}
+            else:
+                logger.error(f"❌ Tool call failed: {response.status_code} - {response.text}")
+                return {"success": False, "error": f"HTTP {response.status_code}"}
+                
+        except Exception as e:
+            logger.error(f"❌ Tool call exception: {e}")
+            return {"success": False, "error": str(e)}
+    
+    def run_quick_test(self):
+        """Run quick comprehensive test"""
+        print("🧪 CloudShell MCP Client - Quick Test")
+        print("=" * 40)
+        print(f"Gateway: {self.gateway_base}")
+        print(f"Lambda: {self.lambda_arn}")
+        print()
+        
+        # Test 1: Direct Lambda
+        lambda_result = self.test_lambda_direct()
+        if lambda_result["success"]:
+            print("✅ Direct Lambda: WORKING")
+        else:
+            print(f"❌ Direct Lambda: FAILED - {lambda_result['\''error'\'']}")
+        
+        print()
+        
+        # Test 2: Gateway Authentication
+        auth_result = self.test_gateway_auth()
+        if auth_result["success"]:
+            print(f"✅ Gateway Auth: WORKING ({auth_result['\''method'\'']})")
+            
+            # Test 3: Application Details
+            print()
+            app_result = self.test_application_details("a12345")
+            if app_result["success"]:
+                print("✅ Application Details: WORKING")
+                print(f"   Method: {app_result['\''method'\'']}")
+                if "result" in app_result:
+                    print(f"   Response: {json.dumps(app_result['\''result'\''], indent=2)[:200]}...")
+            else:
+                print(f"❌ Application Details: FAILED - {app_result['\''error'\'']}")
+        else:
+            print(f"❌ Gateway Auth: FAILED - {auth_result['\''error'\'']}")
+        
+        print()
+        print("📊 Test Complete")
+        return auth_result["success"] if auth_result else False
+
+if __name__ == "__main__":
+    client = QuickMCPClient()
+    if len(sys.argv) > 1 and sys.argv[1] == "asset":
+        # Test specific asset
+        result = client.test_application_details(sys.argv[2] if len(sys.argv) > 2 else "a12345")
+        print(json.dumps(result, indent=2))
+    else:
+        # Run full test
+        client.run_quick_test()
+PYTHON_EOF
+
+echo "✅ Client created successfully"
+echo ""
+echo "🧪 Running quick test..."
+python3 cloudshell_app_details_client.py
+
+echo ""
+echo "🎯 CloudShell Quick Deploy Complete!"
+echo "===================================="
+echo ""
+echo "📋 Available commands:"
+echo "   python3 cloudshell_app_details_client.py           # Full test"
+echo "   python3 cloudshell_app_details_client.py asset a12345  # Test specific asset"
+' > deploy.sh && chmod +x deploy.sh && ./deploy.sh
+
+# Alternative: Manual deployment steps
+echo ""
+echo "🔧 Manual CloudShell Deployment Steps:"
+echo "======================================"
+echo ""
+echo "1. Copy this script to CloudShell:"
+echo "   # Save as deploy.sh and run: chmod +x deploy.sh && ./deploy.sh"
+echo ""
+echo "2. Or run these commands step by step:"
+echo ""
+echo "   # Install dependencies"
+echo "   pip3 install --user requests-aws4auth boto3"
+echo ""
+echo "   # Download and run the comprehensive deployment"
+echo "   wget -O deploy.sh /path/to/cloudshell_comprehensive_deployment.sh"
+echo "   chmod +x deploy.sh"
+echo "   ./deploy.sh"
+echo ""
+echo "3. Quick manual test:"
+echo "   # Create minimal client and test immediately"
+echo "   [Copy the Python code from the script above]"
+echo ""
+echo "🎯 Expected Outcomes:"
+echo "✅ BEST: All tests pass, gateway authentication works"
+echo "⚠️  PARTIAL: Lambda works, gateway fails (config issue)"  
+echo "❌ FAIL: All fail (permissions/network issue)"

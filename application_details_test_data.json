@@ -1,0 +1,56 @@
+{
+  "test_cases": [
+    {
+      "asset_id": "a12345",
+      "description": "Standard asset ID with 'a' prefix",
+      "expected_format": "Application details for a12345"
+    },
+    {
+      "asset_id": "12345", 
+      "description": "Numeric asset ID without prefix",
+      "expected_format": "Application details for a12345 (auto-prefixed)"
+    },
+    {
+      "asset_id": "a208194",
+      "description": "Project-specific asset ID",
+      "expected_format": "Application details for a208194"
+    },
+    {
+      "asset_id": "208194",
+      "description": "Project-specific numeric ID",
+      "expected_format": "Application details for a208194 (auto-prefixed)"
+    },
+    {
+      "asset_id": "a100001",
+      "description": "High numeric asset ID",
+      "expected_format": "Application details for a100001"
+    },
+    {
+      "asset_id": "999999",
+      "description": "Edge case high numeric ID",
+      "expected_format": "Application details for a999999 (auto-prefixed)"
+    }
+  ],
+  "gateway_config": {
+    "gateway_id": "a208194-askjulius-agentcore-gateway-mcp-iam",
+    "target_name": "a208194-application-details-tool-target",
+    "lambda_arn": "arn:aws:lambda:us-east-1:818565325759:function:a208194-chatops_application_details_intent",
+    "region": "us-east-1",
+    "auth_type": "IAM"
+  },
+  "tool_schema": {
+    "name": "get_application_details",
+    "description": "Get application details including name, contact, and regional presence for a given asset ID",
+    "input_schema": {
+      "type": "object",
+      "properties": {
+        "asset_id": {
+          "type": "string",
+          "description": "The application asset ID (can include 'a' prefix, e.g., 'a12345' or '12345')"
+        }
+      },
+      "required": ["asset_id"],
+      "additionalProperties": false
+    }
+  }
+}

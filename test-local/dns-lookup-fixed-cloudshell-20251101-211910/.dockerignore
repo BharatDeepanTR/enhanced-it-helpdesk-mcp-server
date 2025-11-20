@@ -1,0 +1,112 @@
+# Docker ignore file for security and efficiency
+# Prevents sensitive files from being included in the Docker build context
+
+# Version control
+.git/
+.gitignore
+.gitattributes
+
+# IDE and editor files
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+.DS_Store
+Thumbs.db
+
+# Python cache and compiled files
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+*.so
+.Python
+*.egg-info/
+dist/
+build/
+.tox/
+.coverage
+.pytest_cache/
+.mypy_cache/
+
+# Virtual environments
+venv/
+env/
+ENV/
+.venv/
+
+# Logs and temporary files
+*.log
+*.tmp
+*.temp
+.cache/
+tmp/
+temp/
+
+# Security sensitive files
+*.key
+*.pem
+*.crt
+*.cert
+*.p12
+*.pfx
+.env
+.env.*
+secrets/
+credentials/
+config/local*
+
+# Test files and documentation
+test_*.py
+*_test.py
+tests/
+docs/
+README.md
+*.md
+example_*.py
+*_validation.py
+
+# CI/CD files
+.github/
+.gitlab-ci.yml
+.travis.yml
+Jenkinsfile
+.circleci/
+
+# Development tools
+Makefile
+docker-compose*.yml
+*.dockerfile
+Dockerfile.*
+
+# Package managers
+package-lock.json
+yarn.lock
+Pipfile
+Pipfile.lock
+
+# OS specific files
+.DS_Store
+._.DS_Store
+**/.DS_Store
+**/._.DS_Store
+Thumbs.db
+ehthumbs.db
+Desktop.ini
+
+# Large files and databases
+*.db
+*.sqlite
+*.sqlite3
+*.dump
+
+# Backup files
+*.bak
+*.backup
+*.old
+
+# Application specific
+lambda_deployment_package.zip
+deployment/
+migrations/

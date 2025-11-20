@@ -1,0 +1,9 @@
+# Default GenAI configuration for containerized deployment
+# This file provides a fallback configuration when the real config is not available
+{
+  "url": "https://api.openai.com/v1/chat/completions",
+  "headers": {
+    "Content-Type": "application/json",
+    "Authorization": "Bearer ${OPENAI_API_KEY}"
+  }
+}

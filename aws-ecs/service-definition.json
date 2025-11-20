@@ -1,0 +1,71 @@
+{
+  "serviceName": "dns-lookup-service",
+  "cluster": "dns-lookup-cluster",
+  "taskDefinition": "dns-lookup-service:LATEST",
+  "desiredCount": 3,
+  "launchType": "FARGATE",
+  "platformVersion": "LATEST",
+  "networkConfiguration": {
+    "awsvpcConfiguration": {
+      "subnets": [
+        "subnet-12345678",
+        "subnet-87654321"
+      ],
+      "securityGroups": [
+        "sg-dns-lookup-service"
+      ],
+      "assignPublicIp": "DISABLED"
+    }
+  },
+  "loadBalancers": [
+    {
+      "targetGroupArn": "arn:aws:elasticloadbalancing:YOUR_REGION:YOUR_ACCOUNT:targetgroup/dns-lookup-tg/1234567890123456",
+      "containerName": "dns-lookup-container",
+      "containerPort": 8080
+    }
+  ],
+  "serviceRegistries": [
+    {
+      "registryArn": "arn:aws:servicediscovery:YOUR_REGION:YOUR_ACCOUNT:service/srv-dns-lookup",
+      "containerName": "dns-lookup-container",
+      "containerPort": 8080
+    }
+  ],
+  "deploymentConfiguration": {
+    "maximumPercent": 200,
+    "minimumHealthyPercent": 50,
+    "deploymentCircuitBreaker": {
+      "enable": true,
+      "rollback": true
+    }
+  },
+  "deploymentController": {
+    "type": "ECS"
+  },
+  "capacityProviderStrategy": [
+    {
+      "capacityProvider": "FARGATE",
+      "weight": 1,
+      "base": 1
+    }
+  ],
+  "enableExecuteCommand": false,
+  "enableLogging": true,
+  "healthCheckGracePeriodSeconds": 60,
+  "schedulingStrategy": "REPLICA",
+  "serviceTags": [
+    {
+      "key": "Environment",
+      "value": "production"
+    },
+    {
+      "key": "Service",
+      "value": "dns-lookup"
+    },
+    {
+      "key": "Architecture",
+      "value": "arm64"
+    }
+  ],
+  "propagateTags": "SERVICE"
+}

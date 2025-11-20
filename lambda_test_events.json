@@ -1,0 +1,78 @@
+{
+  "test_events": {
+    "mcp_tools_list": {
+      "description": "Test MCP tools/list method",
+      "event": {
+        "jsonrpc": "2.0",
+        "id": 1,
+        "method": "tools/list"
+      }
+    },
+    "mcp_tools_call_valid_asset": {
+      "description": "Test MCP tools/call with valid asset ID",
+      "event": {
+        "jsonrpc": "2.0",
+        "id": 2,
+        "method": "tools/call",
+        "params": {
+          "name": "get_application_details",
+          "arguments": {
+            "asset_id": "a208194"
+          }
+        }
+      }
+    },
+    "mcp_tools_call_without_prefix": {
+      "description": "Test MCP tools/call with asset ID without 'a' prefix",
+      "event": {
+        "jsonrpc": "2.0",
+        "id": 3,
+        "method": "tools/call",
+        "params": {
+          "name": "get_application_details",
+          "arguments": {
+            "asset_id": "208194"
+          }
+        }
+      }
+    },
+    "mcp_tools_call_missing_asset": {
+      "description": "Test MCP tools/call with missing asset_id",
+      "event": {
+        "jsonrpc": "2.0",
+        "id": 4,
+        "method": "tools/call",
+        "params": {
+          "name": "get_application_details",
+          "arguments": {}
+        }
+      }
+    },
+    "direct_invocation_valid": {
+      "description": "Test direct invocation with asset ID",
+      "event": {
+        "asset_id": "a208194"
+      }
+    },
+    "direct_invocation_without_prefix": {
+      "description": "Test direct invocation without 'a' prefix",
+      "event": {
+        "asset_id": "208194"
+      }
+    },
+    "gateway_target_call": {
+      "description": "Test call as it would come from Agent Core Gateway",
+      "event": {
+        "jsonrpc": "2.0",
+        "id": 5,
+        "method": "tools/call",
+        "params": {
+          "name": "target-direct-application-details-lambda___get_application_details",
+          "arguments": {
+            "asset_id": "a208194"
+          }
+        }
+      }
+    }
+  }
+}

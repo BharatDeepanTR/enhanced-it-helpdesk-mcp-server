@@ -1,0 +1,37 @@
+# Manual CloudShell Commands for Calculator Testing
+# Copy and paste these commands one by one in CloudShell
+
+# 1. Test AWS connectivity
+echo "Testing AWS connectivity..."
+aws sts get-caller-identity
+
+# 2. Check if Lambda function exists
+echo "Checking Lambda function..."
+aws lambda get-function --function-name a208194-calculator-mcp-server --region us-east-1 --query 'Configuration.{State: State, Runtime: Runtime}'
+
+# 3. Simple Lambda test using echo and base64
+echo "Testing Lambda with tools/list..."
+echo '{"jsonrpc":"2.0","method":"tools/list","id":1}' | aws lambda invoke --function-name a208194-calculator-mcp-server --region us-east-1 --payload /dev/stdin /tmp/response.json && cat /tmp/response.json
+
+# 4. Test calculation if above works
+echo "Testing simple calculation..."
+echo '{"jsonrpc":"2.0","method":"tools/call","params":{"name":"add","arguments":{"a":3,"b":4}},"id":2}' | aws lambda invoke --function-name a208194-calculator-mcp-server --region us-east-1 --payload /dev/stdin /tmp/calc.json && cat /tmp/calc.json
+
+# 5. Check recent Lambda logs
+echo "Checking recent Lambda logs..."
+aws logs filter-log-events --log-group-name /aws/lambda/a208194-calculator-mcp-server --start-time $(date -d '5 minutes ago' +%s)000 --region us-east-1 --query 'events[*].message' --output text
+
+# 6. Alternative method using temporary file
+echo "Alternative test method..."
+cat > /tmp/test.json << EOF
+{
+    "jsonrpc": "2.0",
+    "method": "tools/list",
+    "id": 1
+}
+EOF
+
+aws lambda invoke --function-name a208194-calculator-mcp-server --payload file:///tmp/test.json --region us-east-1 /tmp/result.json && cat /tmp/result.json | jq .
+
+# Cleanup
+rm -f /tmp/response.json /tmp/calc.json /tmp/test.json /tmp/result.json

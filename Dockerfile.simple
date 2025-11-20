@@ -1,0 +1,30 @@
+# Simple Dockerfile for DNS Agent Core Runtime
+FROM --platform=linux/arm64 python:3.11-slim
+
+WORKDIR /app
+
+# Install required packages
+RUN pip install boto3 requests
+
+# Copy Python files
+COPY chatops_route_dns_intent.py ./
+COPY chatops_helpers.py ./
+COPY chatops_config.py ./
+COPY container_handler.py ./
+COPY function.txt ./
+
+# Create /opt directory and copy function.txt there for genAI functionality
+RUN mkdir -p /opt
+COPY function.txt /opt/function.txt
+
+# Set environment variables
+ENV ENV=dev
+ENV APP_CONFIG_PATH=/a208194/APISECRETS
+ENV PYTHONPATH=/app
+ENV PYTHONUNBUFFERED=1
+
+# Expose port
+EXPOSE 8080
+
+# Run the container handler
+CMD ["python", "container_handler.py"]

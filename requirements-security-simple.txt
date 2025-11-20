@@ -1,0 +1,8 @@
+# Simplified security dependencies without conflicts
+# Core security packages that don't conflict
+
+# Input validation and sanitization  
+validators==0.22.0
+
+# Environment variable validation (basic security)
+# We'll use built-in modules for other security needs

@@ -1,0 +1,19 @@
+FROM python:3.11-slim-bookworm
+
+WORKDIR /app
+
+# Install dependencies
+RUN pip install --no-cache-dir boto3 requests
+
+# Copy application files
+COPY chatops_route_dns_intent.py ./
+COPY chatops_helpers.py ./
+COPY chatops_config.py ./
+COPY universal_handler.py ./
+
+# Set environment variables
+ENV ENV=dev
+ENV APP_CONFIG_PATH=/a208194/APISECRETS
+
+# Use universal handler to catch ALL requests
+CMD ["python", "universal_handler.py"]

@@ -1,0 +1,11 @@
+{
+  "jsonrpc": "2.0",
+  "id": 1,
+  "method": "tools/call",
+  "params": {
+    "name": "ai_calculate",
+    "arguments": {
+      "query": "What is 25% of $80,000?"
+    }
+  }
+}

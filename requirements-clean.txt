@@ -1,0 +1,28 @@
+# Clean requirements with fully compatible versions
+# Tested for Cloud Shell Docker build compatibility
+
+# Core AWS SDK (these versions work together)
+boto3==1.34.34
+botocore==1.34.34
+
+# HTTP library (compatible with both requests and botocore)
+requests==2.31.0
+urllib3==1.26.18
+
+# AWS SDK dependencies
+jmespath==1.0.1
+s3transfer==0.10.2
+
+# Security certificates
+certifi==2023.11.17
+
+# Text encoding
+charset-normalizer==3.3.2
+idna==3.6
+
+# Date handling
+python-dateutil==2.8.2
+pytz==2023.3
+
+# Note: All versions tested for compatibility
+# urllib3 1.26.18 works with both requests 2.31.0 and botocore 1.34.34
