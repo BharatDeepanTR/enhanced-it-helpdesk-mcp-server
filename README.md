@@ -61,10 +61,30 @@ python mcp_client.py --interactive
 
 ### **Direct Lambda Testing:**
 ```bash
+# Create JSON-RPC 2.0 payload file
+echo '{"jsonrpc": "2.0", "method": "tools/list", "params": {}, "id": "test-1"}' > payload.json
+
+# Invoke Lambda function
 aws lambda invoke \
   --function-name a208194-it-helpdesk-enhanced-mcp-server \
-  --payload '{"method": "tools/list", "params": {}}' \
+  --cli-binary-format raw-in-base64-out \
+  --payload file://payload.json \
   response.json
+
+# View response
+cat response.json
+```
+
+### **Test Specific Tool:**
+```bash
+# Test enhanced IT search
+echo '{"jsonrpc": "2.0", "method": "tools/call", "params": {"name": "enhanced_search_it_support", "arguments": {"question": "How do I reset my password?", "session_id": "test-session"}}, "id": "test-2"}' > test_payload.json
+
+aws lambda invoke \
+  --function-name a208194-it-helpdesk-enhanced-mcp-server \
+  --cli-binary-format raw-in-base64-out \
+  --payload file://test_payload.json \
+  response.json && cat response.json
 ```
 
 ### **Ask a Question:**
