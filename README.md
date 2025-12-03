@@ -12,6 +12,19 @@ This enhanced IT support system provides:
 - **Beautiful UI**: Professional Thomson Reuters-branded interface
 - **Production Ready**: Deployed and tested with AgentCore Gateway integration
 
+## 📦 Deployment
+
+### **AWS Lambda Function:**
+- **Name:** `a208194-it-helpdesk-enhanced-mcp-server`
+- **Runtime:** Python 3.14
+- **Region:** us-east-1
+- **Account:** 818565325759
+
+### **Quick Deploy:**
+```bash
+./deploy-enhanced-mcp-cloudshell.sh
+```
+
 ## 🏗️ Architecture
 
 ```
@@ -81,10 +94,36 @@ python tr_helpdesk_ui_client.py
 
 ### **Direct Lambda Testing:**
 ```bash
-# Test the enhanced TR helpdesk
+# Test the enhanced TR helpdesk (Gateway-compatible format)
 aws lambda invoke \
   --function-name a208194-it-helpdesk-enhanced-mcp-server \
+  --cli-binary-format raw-in-base64-out \
   --payload '{"query": "How do I reset my password?"}' \
+  response.json && cat response.json
+```
+
+### **MCP Protocol Testing (JSON-RPC 2.0):**
+```bash
+# Create JSON-RPC 2.0 payload file
+echo '{"jsonrpc": "2.0", "method": "tools/list", "params": {}, "id": "test-1"}' > payload.json
+
+# Invoke Lambda function
+aws lambda invoke \
+  --function-name a208194-it-helpdesk-enhanced-mcp-server \
+  --cli-binary-format raw-in-base64-out \
+  --payload file://payload.json \
+  response.json && cat response.json
+```
+
+### **Test Specific TR Service:**
+```bash
+# Test password reset service
+echo '{"jsonrpc": "2.0", "method": "tools/call", "params": {"name": "reset_password", "arguments": {"query": "I forgot my password", "session_id": "test-session"}}, "id": "test-2"}' > test_payload.json
+
+aws lambda invoke \
+  --function-name a208194-it-helpdesk-enhanced-mcp-server \
+  --cli-binary-format raw-in-base64-out \
+  --payload file://test_payload.json \
   response.json && cat response.json
 ```
 
@@ -103,7 +142,13 @@ aws lambda invoke \
 - ✅ **AgentCore Gateway Compatible** - Full MCP protocol support with AWS IAM authentication
 - ✅ **Claude AI Enhanced** - Intelligent fallback for complex IT queries
 - ✅ **8 IT Support Services** - Comprehensive coverage of common TR IT issues
-- ✅ **18 Tools Available** - Complete MCP tool suite properly mapped and functional
+
+## 🔗 MCP Endpoint
+
+### **Direct Lambda ARN:**
+```
+arn:aws:lambda:us-east-1:818565325759:function:a208194-it-helpdesk-enhanced-mcp-server
+```
 
 ## 🔗 MCP Endpoint
 
@@ -115,7 +160,7 @@ arn:aws:lambda:us-east-1:818565325759:function:a208194-it-helpdesk-enhanced-mcp-
 ### **AgentCore Gateway (Production):**
 - **Gateway ID:** `a208194-askjulius-agentcore-gateway-mcp-iam-fvro4phd59`
 - **Status:** ✅ Active and operational
-- **Authentication:** AWS IAM with proper trust policy including bedrock-agentcore.amazonaws.com
+- **Authentication:** AWS IAM with proper trust policy
 - **Protocol:** MCP-compatible JSON-RPC 2.0
 
 ## 📊 Status
