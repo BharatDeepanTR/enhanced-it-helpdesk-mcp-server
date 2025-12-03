@@ -150,13 +150,6 @@ aws lambda invoke \
 arn:aws:lambda:us-east-1:818565325759:function:a208194-it-helpdesk-enhanced-mcp-server
 ```
 
-## 🔗 MCP Endpoint
-
-### **Direct Lambda ARN:**
-```
-arn:aws:lambda:us-east-1:818565325759:function:a208194-it-helpdesk-enhanced-mcp-server
-```
-
 ### **AgentCore Gateway (Production):**
 - **Gateway ID:** `a208194-askjulius-agentcore-gateway-mcp-iam-fvro4phd59`
 - **Status:** ✅ Active and operational
