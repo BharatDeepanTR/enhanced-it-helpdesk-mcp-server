@@ -73,7 +73,7 @@ This enhanced IT support system provides:
 
 ## 🔧 Usage
 
-### **Enhanced TR Helpdesk UI Client:**
+### **🎨 Enhanced TR Helpdesk UI Client (Recommended):**
 ```bash
 python tr_helpdesk_ui_client.py
 ```
@@ -83,7 +83,13 @@ python tr_helpdesk_ui_client.py
 - 🌐 8 IT support services with real TR resources
 - 🔐 AWS IAM authentication via AgentCore Gateway
 - 📱 Interactive menu with emojis and professional formatting
-- ⚡ All 18 tools properly mapped and functional
+- ⚡ True MCP protocol with proper Gateway routing
+- 📊 Shows up in AgentCore Gateway logs
+
+## 🔬 Testing Methods
+
+### **🎯 True MCP Protocol Testing (via AgentCore Gateway):**
+**This method routes through the AgentCore Gateway and shows up in Gateway logs**
 
 ### **Real Thomson Reuters Service Desk Resources:**
 
@@ -92,9 +98,9 @@ python tr_helpdesk_ui_client.py
 **🎫 ServiceNow Portal:** https://thomsonreuters.service-now.com
 **🔐 Password Reset Portal:** https://pwreset.thomsonreuters.com/r/passwordreset/flow-selection
 
-### **Direct Lambda Testing:**
+### **Direct Lambda Testing (Non-MCP):**
 ```bash
-# Test the enhanced TR helpdesk (Gateway-compatible format)
+# Test the enhanced TR helpdesk (Direct Lambda - bypasses Gateway)
 aws lambda invoke \
   --function-name a208194-it-helpdesk-enhanced-mcp-server \
   --cli-binary-format raw-in-base64-out \
@@ -102,29 +108,50 @@ aws lambda invoke \
   response.json && cat response.json
 ```
 
-### **MCP Protocol Testing (JSON-RPC 2.0):**
+### **True MCP Protocol Testing (via AgentCore Gateway):**
 ```bash
-# Create JSON-RPC 2.0 payload file
-echo '{"jsonrpc": "2.0", "method": "tools/list", "params": {}, "id": "test-1"}' > payload.json
+# Install awscurl for proper authentication
+pip install awscurl
 
-# Invoke Lambda function
-aws lambda invoke \
-  --function-name a208194-it-helpdesk-enhanced-mcp-server \
-  --cli-binary-format raw-in-base64-out \
-  --payload file://payload.json \
-  response.json && cat response.json
+# List all available MCP tools
+awscurl --service bedrock-agentcore \
+  --region us-east-1 \
+  -X POST \
+  -H "Content-Type: application/json" \
+  -d '{"jsonrpc": "2.0", "method": "tools/list", "params": {}, "id": "list-tools"}' \
+  https://a208194-askjulius-agentcore-gateway-mcp-iam-fvro4phd59.gateway.bedrock-agentcore.us-east-1.amazonaws.com/mcp
 ```
 
-### **Test Specific TR Service:**
+### **Test Enhanced TR IT Helpdesk Tools (MCP via Gateway):**
 ```bash
 # Test password reset service
-echo '{"jsonrpc": "2.0", "method": "tools/call", "params": {"name": "reset_password", "arguments": {"query": "I forgot my password", "session_id": "test-session"}}, "id": "test-2"}' > test_payload.json
+awscurl --service bedrock-agentcore \
+  --region us-east-1 \
+  -X POST \
+  -H "Content-Type: application/json" \
+  -d '{"jsonrpc": "2.0", "method": "tools/call", "params": {"name": "target-lambda-it-helpdesk-enhanced-mcp___reset_password", "arguments": {"query": "I forgot my password"}}, "id": "test-1"}' \
+  https://a208194-askjulius-agentcore-gateway-mcp-iam-fvro4phd59.gateway.bedrock-agentcore.us-east-1.amazonaws.com/mcp
 
-aws lambda invoke \
-  --function-name a208194-it-helpdesk-enhanced-mcp-server \
-  --cli-binary-format raw-in-base64-out \
-  --payload file://test_payload.json \
-  response.json && cat response.json
+# Test AWS access service  
+awscurl --service bedrock-agentcore \
+  --region us-east-1 \
+  -X POST \
+  -H "Content-Type: application/json" \
+  -d '{"jsonrpc": "2.0", "method": "tools/call", "params": {"name": "target-lambda-it-helpdesk-enhanced-mcp___aws_access", "arguments": {"query": "How do I access AWS console?"}}, "id": "test-2"}' \
+  https://a208194-askjulius-agentcore-gateway-mcp-iam-fvro4phd59.gateway.bedrock-agentcore.us-east-1.amazonaws.com/mcp
+
+# Test IT support search
+awscurl --service bedrock-agentcore \
+  --region us-east-1 \
+  -X POST \
+  -H "Content-Type: application/json" \
+  -d '{"jsonrpc": "2.0", "method": "tools/call", "params": {"name": "target-lambda-it-helpdesk-enhanced-mcp___it_support_search", "arguments": {"question": "VPN troubleshooting help"}}, "id": "test-3"}' \
+  https://a208194-askjulius-agentcore-gateway-mcp-iam-fvro4phd59.gateway.bedrock-agentcore.us-east-1.amazonaws.com/mcp
+```
+
+### **Recommended: Use the Beautiful UI Client (Best MCP Experience):**
+```bash
+python tr_helpdesk_ui_client.py
 ```
 
 ## 📁 Core Files (Enhanced Version 2.0)
@@ -152,9 +179,15 @@ arn:aws:lambda:us-east-1:818565325759:function:a208194-it-helpdesk-enhanced-mcp-
 
 ### **AgentCore Gateway (Production):**
 - **Gateway ID:** `a208194-askjulius-agentcore-gateway-mcp-iam-fvro4phd59`
+- **MCP Endpoint:** `https://a208194-askjulius-agentcore-gateway-mcp-iam-fvro4phd59.gateway.bedrock-agentcore.us-east-1.amazonaws.com/mcp`
 - **Status:** ✅ Active and operational
 - **Authentication:** AWS IAM with proper trust policy
-- **Protocol:** MCP-compatible JSON-RPC 2.0
+- **Protocol:** MCP over JSON-RPC 2.0
+
+### **Available Enhanced TR IT Helpdesk Tools:**
+- `target-lambda-it-helpdesk-enhanced-mcp___reset_password`
+- `target-lambda-it-helpdesk-enhanced-mcp___aws_access`  
+- `target-lambda-it-helpdesk-enhanced-mcp___it_support_search`
 
 ## 📊 Status
 
